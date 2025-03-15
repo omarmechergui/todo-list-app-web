@@ -1,0 +1,115 @@
+/* Container */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid black;
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 400px;
+  margin: auto;
+  background-color: #f9f9f9;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  font-size: 30px;
+  color: red;
+}
+
+/* Input Container */
+.input-container {
+  display: flex;
+  gap: 10px;
+}
+
+/* Input Field */
+.input {
+  padding: 10px;
+  border-radius: 10px;
+  flex: 1;
+  border: 1px solid #ccc;
+}
+
+/* Buttons */
+.add-button, .clear-button {
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+  color: white;
+}
+
+.add-button {
+  background-color: blue;
+}
+
+.clear-button {
+  background-color: red;
+}
+
+/* Filter Container */
+.filter-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.filter-container button {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid black;
+  cursor: pointer;
+  background-color: white;
+  transition: 0.3s ease-in-out;
+}
+
+.filter-container button:hover {
+  background-color: lightgray;
+}
+
+.filter-container .active {
+  background-color: black;
+  color: white;
+}
+
+/* List */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0;
+}
+
+/* Todo Item */
+.todo-item {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* List Item */
+.list-item {
+  list-style-type: none;
+  cursor: pointer;
+  border: 1px solid black;
+  padding: 10px;
+  border-radius: 10px;
+  overflow-wrap: break-word;
+  flex: 1;
+}
+
+/* Completed Todo */
+.list-item.completed {
+  text-decoration: line-through;
+  color: gray;
+}
+
+/* Delete Button */
+.delete-button {
+  cursor: pointer;
+  font-size: 20px;
+  color: red;
+}
