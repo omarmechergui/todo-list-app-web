@@ -1,0 +1,151 @@
+/* General Styles */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #121212;
+  color: #f0f0f0;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Explosion Effect when Level Up */
+.stats-card.explode {
+  animation: explodeAnimation 1s ease-out forwards;
+}
+
+@keyframes explodeAnimation {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 20px #ff0033, 0 0 30px #ff0033;
+    background-color: #ff0033;
+  }
+  100% {
+    transform: scale(1.2);
+    box-shadow: 0 0 50px #ff0033, 0 0 70px #ff0033;
+    background-color: #1f1f1f;
+  }
+}
+
+/* Popup Message */
+.popup-message {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #28a745;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 18px;
+  z-index: 10;
+}
+
+/* Level & XP Card */
+.stats-card {
+  background: #1f1f1f;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 0 12px #00c3ff44;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.xp-bar {
+  background-color: #333;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.xp-fill {
+  background: linear-gradient(to right, #00c3ff, #0074ff);
+  color: white;
+  padding: 8px;
+  font-weight: bold;
+  transition: width 0.5s ease;
+}
+
+/* Section titles */
+.quests-section {
+  margin-top: 30px;
+}
+
+.quests-section h3 {
+  margin-bottom: 15px;
+}
+
+/* Cards Grid */
+.quests-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+/* Mission Card */
+.quest-card {
+  background: #1a1a1a;
+  padding: 15px;
+  border-radius: 15px;
+  box-shadow: 0 0 10px #00000055;
+  transition: transform 0.3s ease;
+  position: relative;
+}
+
+.quest-card h5 {
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.quest-card p {
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.quest-card.completed {
+  background: #2d2d2d;
+  border-left: 5px solid limegreen;
+  opacity: 0.8;
+  text-decoration: line-through;
+}
+
+.quest-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Icons inside tasks */
+.icon {
+  font-size: 25px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+/* Refresh Button */
+.refresh-btn {
+  background: linear-gradient(to right, #ff9a00, #ff3c00);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.refresh-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px #ff3c00aa;
+}
+
+/* Complete Button */
+.btn-success,
+.btn-danger {
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 6px 12px;
+}
+
+/* Responsive Text Center */
+.text-center {
+  text-align: center;
+}
