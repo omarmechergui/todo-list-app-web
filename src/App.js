@@ -1,152 +1,135 @@
 import React, { useState, useEffect } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
-import { generateQuestByLevel } from './data';
+import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
+import { generateQuestByLevel } from './data'; // استيراد دالة توليد المهام
 
-function App() {
-  const [tasks, setTasks] = useState(() => {
-    const stored = localStorage.getItem('tasks');
-    return stored ? JSON.parse(stored) : [];
+const defaultTasks = [
+  { id: 1, name: "مهمة 1", completed: false },
+  { id: 2, name: "مهمة 2", completed: false },
+  { id: 3, name: "مهمة 3", completed: false },
+  { id: 4, name: "مهمة 4", completed: false },
+  { id: 5, name: "مهمة 5", completed: false },
+];
+
+const Home = () => {
+  const [taskList, setTaskList] = useState(() => {
+    const savedTasks = localStorage.getItem("tasks");
+    return savedTasks ? JSON.parse(savedTasks) : defaultTasks;
   });
-
   const [level, setLevel] = useState(() => {
-    const storedLevel = localStorage.getItem('level');
-    return storedLevel ? parseInt(storedLevel) : 1;
+    const savedLevel = localStorage.getItem("level");
+    return savedLevel ? parseInt(savedLevel) : 1;
   });
-
   const [xp, setXp] = useState(() => {
-    const storedXp = localStorage.getItem('xp');
-    return storedXp ? parseInt(storedXp) : 0;
+    const savedXp = localStorage.getItem("xp");
+    return savedXp ? parseInt(savedXp) : 0;
   });
+  const [xpRequired, setXpRequired] = useState(100);
+  const [showPopup, setShowPopup] = useState(false);
 
-  const [xpToNextLevel, setXpToNextLevel] = useState(() => {
-    const storedXpToNextLevel = localStorage.getItem('xpToNextLevel');
-    return storedXpToNextLevel ? parseInt(storedXpToNextLevel) : 100;
-  });
-
-  const [popupMessage, setPopupMessage] = useState('');
-  const [showExplosion, setShowExplosion] = useState(false);
-
+  // استخدام دالة generateQuestByLevel لتوليد المهام بناءً على المستوى
   useEffect(() => {
-    const lastUpdated = localStorage.getItem('lastUpdated');
-    const now = new Date();
-
-    if (!lastUpdated || (now - new Date(lastUpdated)) > 24 * 60 * 60 * 1000) {
-      const newQuests = generateQuestByLevel(level);
-      setTasks(newQuests);
-      localStorage.setItem('tasks', JSON.stringify(newQuests));
-      localStorage.setItem('lastUpdated', now.toString());
-    }
+    const generatedTasks = generateQuestByLevel(level);
+    setTaskList(generatedTasks);
   }, [level]);
 
-  const completeTask = (id) => {
-    const updatedTasks = tasks.map((task) => {
-      if (task.id === id && !task.completed) {
-        const gainedXp = task.xpReward;
-        let newXp = xp + gainedXp;
-        let newLevel = level;
-        let newXpToNext = xpToNextLevel;
+  useEffect(() => {
+    if (xp >= xpRequired) {
+      setLevel(level + 1);
+      setXp(0);
+      setXpRequired(xpRequired * 1.2);  // Increase xp required for each level
+      setShowPopup(true);
+      setTimeout(() => setShowPopup(false), 2000);  // Hide popup after 2 seconds
+    }
+  }, [xp, level, xpRequired]);
 
-        while (newXp >= newXpToNext) {
-          newXp -= newXpToNext;
-          newLevel += 1;
-          newXpToNext = Math.floor(newXpToNext * 1.2);
-        }
+  // Save tasks, XP, and level to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(taskList));
+    localStorage.setItem("level", level);
+    localStorage.setItem("xp", xp);
+  }, [taskList, level, xp]);
 
-        setXp(newXp);
-        setLevel(newLevel);
-        setXpToNextLevel(newXpToNext);
-
-        localStorage.setItem('xp', newXp.toString());
-        localStorage.setItem('level', newLevel.toString());
-        localStorage.setItem('xpToNextLevel', newXpToNext.toString());
-
-        // Trigger explosion effect
-        setShowExplosion(true);
-        setTimeout(() => setShowExplosion(false), 1000); // Reset after 1 second
-
-        // Show popup when level up
-        setPopupMessage(`Congratulations! You've reached Level ${newLevel}!`);
-
-        return { ...task, completed: true };
-      }
-      return task;
-    });
-
-    setTasks(updatedTasks);
-    localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+  const toggleTask = (id) => {
+    setTaskList(prevTasks =>
+      prevTasks.map(task =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      )
+    );
+    setXp(xp + 10); // Add XP for completed task
   };
 
   const refreshTasks = () => {
-    const newQuests = generateQuestByLevel(level);
-    setTasks(newQuests);
-    localStorage.setItem('tasks', JSON.stringify(newQuests));
-    localStorage.setItem('lastUpdated', new Date().toString());
+    // Check if all tasks are completed before generating new ones
+    const allTasksCompleted = taskList.every(task => task.completed);
+    if (allTasksCompleted) {
+      const generatedTasks = generateQuestByLevel(level);
+      setTaskList(generatedTasks);
+      localStorage.setItem("tasks", JSON.stringify(generatedTasks));
+    } else {
+      alert("يجب إتمام جميع المهام قبل تحديثها.");
+    }
   };
 
-  const allTasksCompleted = tasks.length > 0 && tasks.every(task => task.completed);
-
   return (
-    <div className="app-container">
-      {popupMessage && <div className="popup-message">{popupMessage}</div>}
-      
-      <div className={`stats-card ${showExplosion ? 'explode' : ''}`}>
-        <h2>🧍‍♂️ Level {level}</h2>
+    <div className="App">
+      <div className={`stats-card ${showPopup ? 'popup-visible' : ''}`}>
+        <h2>المستوى: {level}</h2>
         <div className="xp-bar">
-          <div
-            className="xp-fill"
-            style={{ width: `${(xp / xpToNextLevel) * 100}%` }}
-          >
-            XP {xp}/{xpToNextLevel}
+          <div className="xp-fill" style={{ width: `${(xp / xpRequired) * 100}%` }}>
+            XP: {xp} / {xpRequired}
           </div>
         </div>
+        {showPopup && <div className="popup-message">مبروك! لقد وصلت إلى مستوى {level}</div>}
       </div>
 
-      {allTasksCompleted && (
-        <div className="text-center my-3">
-          <button className="refresh-btn" onClick={refreshTasks}>
-            🔁 Refresh Missions
-          </button>
-        </div>
-      )}
-
-      <div className="quests-section">
-        <h3>🏋️‍♂️ Sport Missions</h3>
-        <div className="quests-list">
-          {tasks.filter(task => task.type === 'Sport').map(task => (
-            <div key={task.id} className={`quest-card ${task.completed ? 'completed' : ''}`}>
-              <div className="icon">{task.completed ? '✔️' : '🏋️‍♂️'}</div>
-              <h5>{task.title}</h5>
-              <p>XP: {task.xpReward}</p>
-              {!task.completed && (
-                <button className="btn btn-success btn-sm" onClick={() => completeTask(task.id)}>
-                  ✅ Complete
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
+      <div className="quests-list">
+        {taskList.map((task) => (
+          <div
+            key={task.id}
+            className={`quest-card ${task.completed ? 'completed' : ''}`}
+            onClick={() => toggleTask(task.id)}
+          >
+            <h5>{task.title}</h5>
+            <p>{task.completed ? "تم إتمام المهمة" : "لم تكتمل بعد"}</p>
+          </div>
+        ))}
       </div>
 
-      <div className="quests-section">
-        <h3>📚 Culture Missions</h3>
-        <div className="quests-list">
-          {tasks.filter(task => task.type === 'Culture').map(task => (
-            <div key={task.id} className={`quest-card ${task.completed ? 'completed' : ''}`}>
-              <div className="icon">{task.completed ? '✔️' : '📚'}</div>
-              <h5>{task.title}</h5>
-              <p>XP: {task.xpReward}</p>
-              {!task.completed && (
-                <button className="btn btn-danger btn-sm" onClick={() => completeTask(task.id)}>
-                  ✅ Complete
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
+      <button className="refresh-btn" onClick={refreshTasks}>تحديث المهام</button>
+      {/* Link to Stats Page */}
+      <Link to="/stats">
+        <button className="go-to-stats-btn">عرض الإحصائيات</button>
+      </Link>
     </div>
   );
-}
+};
+
+const Stats = () => {
+  return (
+    <div className="stats-page">
+      <h2>إحصائياتك الشخصية</h2>
+      <div className="stat-card">
+        <p>المستوى: 1</p>
+        <p>XP: 50 / 100</p>
+        <p>المهام المكتملة: 3</p>
+      </div>
+      <Link to="/">
+        <button className="go-back-btn">العودة للصفحة الرئيسية</button>
+      </Link>
+    </div>
+  );
+};
+
+const App = () => {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/stats" element={<Stats />} />
+      </Routes>
+    </Router>
+  );
+};
 
 export default App;
