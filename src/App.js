@@ -1,49 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
-import { generateQuestByLevel } from './data'; // استيراد دالة توليد المهام
-
-const defaultTasks = [
-  { id: 1, name: "مهمة 1", completed: false },
-  { id: 2, name: "مهمة 2", completed: false },
-  { id: 3, name: "مهمة 3", completed: false },
-  { id: 4, name: "مهمة 4", completed: false },
-  { id: 5, name: "مهمة 5", completed: false },
-];
+import { generateQuestByLevel } from './data';
 
 const Home = () => {
-  const [taskList, setTaskList] = useState(() => {
-    const savedTasks = localStorage.getItem("tasks");
-    return savedTasks ? JSON.parse(savedTasks) : defaultTasks;
-  });
   const [level, setLevel] = useState(() => {
     const savedLevel = localStorage.getItem("level");
     return savedLevel ? parseInt(savedLevel) : 1;
   });
+
   const [xp, setXp] = useState(() => {
     const savedXp = localStorage.getItem("xp");
     return savedXp ? parseInt(savedXp) : 0;
   });
+
   const [xpRequired, setXpRequired] = useState(100);
   const [showPopup, setShowPopup] = useState(false);
 
-  // استخدام دالة generateQuestByLevel لتوليد المهام بناءً على المستوى
-  useEffect(() => {
-    const generatedTasks = generateQuestByLevel(level);
-    setTaskList(generatedTasks);
-  }, [level]);
+  const [taskList, setTaskList] = useState(() => {
+    const savedTasks = localStorage.getItem("tasks");
+    return savedTasks ? JSON.parse(savedTasks) : generateQuestByLevel(level);
+  });
 
   useEffect(() => {
     if (xp >= xpRequired) {
-      setLevel(level + 1);
+      const newLevel = level + 1;
+      setLevel(newLevel);
       setXp(0);
-      setXpRequired(xpRequired * 1.2);  // Increase xp required for each level
+      setXpRequired(xpRequired * 1.2);
       setShowPopup(true);
-      setTimeout(() => setShowPopup(false), 2000);  // Hide popup after 2 seconds
+      setTimeout(() => setShowPopup(false), 2000);
     }
-  }, [xp, level, xpRequired]);
+  }, [xp]);
 
-  // Save tasks, XP, and level to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(taskList));
     localStorage.setItem("level", level);
@@ -51,23 +40,23 @@ const Home = () => {
   }, [taskList, level, xp]);
 
   const toggleTask = (id) => {
-    setTaskList(prevTasks =>
-      prevTasks.map(task =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
+    const updatedTasks = taskList.map(task =>
+      task.id === id ? { ...task, completed: !task.completed } : task
     );
-    setXp(xp + 10); // Add XP for completed task
+    setTaskList(updatedTasks);
+
+    const task = taskList.find(t => t.id === id);
+    if (!task.completed) {
+      setXp(prev => prev + task.xpReward);
+    }
   };
 
   const refreshTasks = () => {
-    // Check if all tasks are completed before generating new ones
-    const allTasksCompleted = taskList.every(task => task.completed);
-    if (allTasksCompleted) {
-      const generatedTasks = generateQuestByLevel(level);
-      setTaskList(generatedTasks);
-      localStorage.setItem("tasks", JSON.stringify(generatedTasks));
-    } else {
-      alert("يجب إتمام جميع المهام قبل تحديثها.");
+    const allCompleted = taskList.every(task => task.completed);
+    if (allCompleted) {
+      const newTasks = generateQuestByLevel(level);
+      setTaskList(newTasks);
+      localStorage.setItem("tasks", JSON.stringify(newTasks));
     }
   };
 
@@ -77,7 +66,7 @@ const Home = () => {
         <h2>المستوى: {level}</h2>
         <div className="xp-bar">
           <div className="xp-fill" style={{ width: `${(xp / xpRequired) * 100}%` }}>
-            XP: {xp} / {xpRequired}
+            XP: {xp} / {Math.floor(xpRequired)}
           </div>
         </div>
         {showPopup && <div className="popup-message">مبروك! لقد وصلت إلى مستوى {level}</div>}
@@ -96,8 +85,14 @@ const Home = () => {
         ))}
       </div>
 
-      <button className="refresh-btn" onClick={refreshTasks}>تحديث المهام</button>
-      {/* Link to Stats Page */}
+      <button
+        className="refresh-btn"
+        onClick={refreshTasks}
+        disabled={!taskList.every(task => task.completed)}
+      >
+        تحديث المهام
+      </button>
+
       <Link to="/stats">
         <button className="go-to-stats-btn">عرض الإحصائيات</button>
       </Link>
@@ -106,13 +101,18 @@ const Home = () => {
 };
 
 const Stats = () => {
+  const level = parseInt(localStorage.getItem("level") || 1);
+  const xp = parseInt(localStorage.getItem("xp") || 0);
+  const taskList = JSON.parse(localStorage.getItem("tasks") || "[]");
+  const completedTasks = taskList.filter(task => task.completed).length;
+
   return (
     <div className="stats-page">
       <h2>إحصائياتك الشخصية</h2>
       <div className="stat-card">
-        <p>المستوى: 1</p>
-        <p>XP: 50 / 100</p>
-        <p>المهام المكتملة: 3</p>
+        <p>المستوى: {level}</p>
+        <p>XP: {xp}</p>
+        <p>المهام المكتملة: {completedTasks}</p>
       </div>
       <Link to="/">
         <button className="go-back-btn">العودة للصفحة الرئيسية</button>

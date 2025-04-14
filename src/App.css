@@ -75,25 +75,44 @@ body {
 
 .quest-card:hover {
   transform: translateY(-5px);
-  background-color: rgba(0, 198, 255, 0.2);
+  background-color: rgba(0, 198, 255, 0.1);
 }
 
 .quest-card.completed {
-  background-color: rgba(0, 255, 0, 0.2);
+  background-color: rgba(0, 198, 255, 0.2);
+  border-color: #4affb7;
 }
 
-.refresh-btn, .go-to-stats-btn, .go-back-btn {
-  background-color: #00c6ff;
+.refresh-btn,
+.go-to-stats-btn,
+.go-back-btn {
+  margin-top: 2rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
   border: none;
-  color: white;
-  padding: 0.8rem 1.5rem;
-  margin-top: 1rem;
-  border-radius: 10px;
+  border-radius: 12px;
+  background-color: #00c6ff;
+  color: #000;
   cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s ease-in-out;
 }
 
-.refresh-btn:hover, .go-to-stats-btn:hover, .go-back-btn:hover {
-  background-color: #008caa;
+.refresh-btn:hover,
+.go-to-stats-btn:hover,
+.go-back-btn:hover {
+  background-color: #4affb7;
+}
+
+.stats-page {
+  padding: 2rem;
+}
+
+.stat-card {
+  background-color: rgba(255, 255, 255, 0.08);
+  padding: 2rem;
+  border-radius: 20px;
+  border: 1px solid #00c6ff;
+  max-width: 400px;
+  margin: 0 auto;
 }
